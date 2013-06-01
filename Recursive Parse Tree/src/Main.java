@@ -44,32 +44,41 @@ public class Main {
 			System.err.println("Error reading input");
 			ioe.printStackTrace();
 		}
+		
+		//Start parsing the tree, there is no parent, and pass in the input data
 		headNode = parseTree(null, expr);
+		
+		//Allow the user to traverse the tree
 		traverseTree(headNode);
 	}
 	
+	/**
+	 * The main recursive expression parser. This will take a parent node and an expression string and return the new node
+	 * 
+	 * @param parent - A Treenode that is the parent node of the node with the expression that is being parsed, null if no parent
+	 * @param data - A string expression that will be parsed into a node, with recursive parsing if it is a complex expression
+	 * 
+	 * @returns - A TreeNode that was parsed from the string "data" expression
+	 */
 	public static TreeNode parseTree (TreeNode parent, String data) {
-		//Check for the number of expressions & type if any
-		data.trim(); //Remove extra spaces on the edges
+		data.trim();
 		TreeNode thisNode = new TreeNode(parent, data, ++nodesCreated);
+		
+		//Go through each character of the data, parse the expression
 		for(int i = 0; i < data.length(); i++) {
 			if(data.charAt(i) == '+' || data.charAt(i) == '-') {
-				//There are two expressions (e+e || e-e)
 				thisNode.dataType = "e" + data.charAt(i) + "e";
-				//Print this node's data
 				printNode(thisNode);
-				//Send the parser down the left hand path with all data up to the 
-				//expression sign
+				
+				//Recursively send the parser down each side of the path
 				thisNode.leftChild = parseTree(thisNode, data.substring(0, i));
-				//Send the parser down the right hand path with all data after the 
-				//expression sign
 				thisNode.rightChild = parseTree(thisNode, data.substring(i + 1));
-				//Return this node, the header node if this is the header node
+				
 				return thisNode;
 			}
 		}
+		
 		//We know that there are no more expressions, we are down to an (n = d || nd)
-		//We need to figure out if we have one digit or multiple.
 		if(data.length() > 1) {
 			//We have more than one digit. We need to get the last one and pass on the rest
 			try {
@@ -88,22 +97,30 @@ public class Main {
 					System.exit(-1);
 				}
 			}
+			
+			//Since this is a multidigit number, recursively parse the number
 			thisNode.dataType = "nd";
-			//Print this node's data to the screen
 			printNode(thisNode);
+			
 			//Send the parser down the left hand path with all numbers except the right-most
 			thisNode.leftChild = parseTree(thisNode, data.substring(0, data.length() - 1));
+			
 			//Send the parser down the right hand path with only this digit
 			thisNode.rightChild = parseTree(thisNode, data.substring(data.length() - 1));
 		} else {
 			//There is only one digit
 			thisNode.dataType = "d";
-			//Print this node's data to the screen
 			printNode(thisNode);
 		}
+		
 		return thisNode;
 	}
 	
+	/**
+	 * Takes a TreeNode and prints to the command line data about that node
+	 * 
+	 * @param thisNode - The node to print the attributes of
+	 */
 	public static void printNode (TreeNode thisNode) {
 		System.out.println("\nCurrent Node Number: " + thisNode.numCreated);
 		System.out.println("Current Node Data Type: " + thisNode.dataType);
@@ -115,6 +132,11 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * Allow the user to use command line input to traverse a parsed tree
+	 * 
+	 * @param headNode - The node to start traversal at.
+	 */
 	public static void traverseTree (TreeNode headNode) {
 		TreeNode currentNode = headNode;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -123,7 +145,9 @@ public class Main {
 		
 		System.out.println("Entering Traversal Menu, HeadNode:\n");
 		
+		//We're going to do this until the user wants to leave
 		while(true) {
+			//Print the current node, give the user some options
 			System.out.println("Current Node:");
 			printNode(currentNode);
 			
